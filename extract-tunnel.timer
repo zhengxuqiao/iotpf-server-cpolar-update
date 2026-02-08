@@ -1,0 +1,16 @@
+[Unit]
+# extract-tunnel.service 定时器单元
+# 此定时器每分钟触发一次 extract-tunnel.service
+Description=Run extract-tunnel.py every minute
+
+[Timer]
+# 启动后 1 分钟开始
+OnBootSec=1min
+# 每次激活后 1 分钟再次运行
+OnUnitActiveSec=1min
+# 设置精度为 1 秒
+AccuracySec=1s
+
+[Install]
+# 当 timers.target 激活时启用此定时器
+WantedBy=timers.target

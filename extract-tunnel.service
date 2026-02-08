@@ -1,0 +1,16 @@
+[Unit]
+# extract-tunnel.py 服务单元
+# 此服务以一次性服务方式运行隧道提取脚本
+# 由 extract-tunnel.timer 每分钟触发一次
+Description=Extract tunnel information from cpolar access.log
+
+[Service]
+# 以 root 用户运行（如需调整请修改）
+User=root
+# 将工作目录设置为脚本位置
+WorkingDirectory=/root/cpolar/iotpf-server-cpolar-update
+# 执行 Python 脚本
+ExecStart=/usr/bin/python3 /root/cpolar/iotpf-server-cpolar-update/extract-tunnel.py
+# 将输出发送到日志
+StandardOutput=journal
+StandardError=journal
