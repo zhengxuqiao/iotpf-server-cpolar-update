@@ -25,6 +25,14 @@ def extract_tunnel_info(log_file):
         以隧道名称为键、URL 为值的字典
     """
     tunnels = {}
+    required_tunnel_names = {
+        'cpolar-web',
+        'ssh',
+        'thingsboard-mqtt',
+        'thingsboard-mqtt-ssl',
+        'thingsboard-web',
+        'thingsboard-http-alt'
+    }
     
     # 匹配包含隧道名称和 URL 的 NewTunnel 消息的模式
     # 日志文件在 JSON 中使用转义引号: \"TunnelName\":\"<name>\",\"Url\":\"<url>\"
@@ -35,14 +43,21 @@ def extract_tunnel_info(log_file):
         content = f.read()
         
         # 查找所有隧道名称和 URL 对
-        matches = tunnel_name_pattern.finditer(content)
+        matches = list(tunnel_name_pattern.finditer(content))
         
-        for match in matches:
+        # 逆序遍历匹配项，找到每个隧道的第一个匹配项（最新的）
+        for match in reversed(matches):
             tunnel_name = match.group(1)
             url = match.group(2)
             
-            # 只为每个隧道名称保留最新的 URL
-            tunnels[tunnel_name] = url
+            # 只处理我们需要的隧道类型
+            if tunnel_name in required_tunnel_names:
+                # 如果该隧道还没有被处理，就保存它
+                if tunnel_name not in tunnels:
+                    tunnels[tunnel_name] = url
+                    # 如果所有需要的隧道都已找到，就提前退出
+                    if len(tunnels) == len(required_tunnel_names):
+                        break
     
     return tunnels
 
@@ -57,18 +72,33 @@ def generate_tunnel_json(tunnels, output_file):
     返回:
         包含所需隧道及其 URL 的字典
     """
-    # 根据要求仅过滤我们需要的隧道
-    required_tunnels = {
-        'cpolar-web': tunnels.get('cpolar-web', ''),
-        'ssh': tunnels.get('ssh', ''),
-        'thingsboard-mqtt': tunnels.get('thingsboard-mqtt', ''),
-        'thingsboard-mqtt-ssl': tunnels.get('thingsboard-mqtt-ssl', ''),
-        'thingsboard-web': tunnels.get('thingsboard-web', ''),
-        'thingsboard-http-alt': tunnels.get('thingsboard-http-alt', '')
+    # 检查是否存在旧的 tunnel.json 文件
+    old_tunnels = {}
+    if output_file.exists():
+        try:
+            with open(output_file, 'r', encoding='utf-8') as f:
+                old_tunnels = json.load(f)
+        except json.JSONDecodeError:
+            print(f"警告: 无法解析旧的 {output_file} 文件，将创建新文件")
+    
+    # 根据要求仅过滤我们需要的隧道，保留旧值
+    required_tunnels = {}
+    required_tunnel_names = {
+        'cpolar-web',
+        'ssh',
+        'thingsboard-mqtt',
+        'thingsboard-mqtt-ssl',
+        'thingsboard-web',
+        'thingsboard-http-alt'
     }
     
-    # 移除空条目
-    required_tunnels = {k: v for k, v in required_tunnels.items() if v}
+    for tunnel_name in required_tunnel_names:
+        # 如果新提取的信息中有该隧道，使用新值
+        if tunnel_name in tunnels:
+            required_tunnels[tunnel_name] = tunnels[tunnel_name]
+        # 否则，如果旧文件中有该隧道，使用旧值
+        elif tunnel_name in old_tunnels:
+            required_tunnels[tunnel_name] = old_tunnels[tunnel_name]
     
     # 将隧道信息写入 JSON 文件
     with open(output_file, 'w', encoding='utf-8') as f:
@@ -124,7 +154,7 @@ def main():
     
     if not tunnels:
         print("警告: 在日志文件中未找到隧道信息")
-        return 1
+        # 即使没有找到隧道信息，也继续执行以保留旧值
     
     # 生成 tunnel.json
     print("\n正在生成 tunnel.json...")
