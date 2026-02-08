@@ -111,9 +111,28 @@ systemctl start extract-tunnel.timer
 
 ### 远程访问 tunnel.json 文件
 
-由于直接访问 Gitee 仓库文件可能会遇到 403 错误，以下是几种可靠的访问方法：
+以下是无需登录直接获取文件的方法，避免 403 错误：
 
-#### 方法一：通过 Git 克隆仓库（推荐）
+#### 方法一：使用 raw 格式的 URL（推荐）
+使用 Gitee 的原始文件 URL 格式，可以无需登录直接获取文件：
+
+```bash
+# 使用 raw 格式的 URL
+curl -s https://gitee.com/zhengxuqiao/iotpf-server-cpolar-update/raw/master/tunnel.json
+```
+
+**URL 转换方法**：将原来的 `blob` 替换为 `raw` 即可获得原始文件 URL
+- 原 URL：`https://gitee.com/zhengxuqiao/iotpf-server-cpolar-update/blob/master/tunnel.json`
+- 转换后：`https://gitee.com/zhengxuqiao/iotpf-server-cpolar-update/raw/master/tunnel.json`
+
+#### 方法二：使用 curl 命令获取（带 User-Agent）
+如果遇到访问限制，可以添加 User-Agent 头：
+
+```bash
+curl -s -H "User-Agent: Mozilla/5.0" https://gitee.com/zhengxuqiao/iotpf-server-cpolar-update/raw/master/tunnel.json
+```
+
+#### 方法三：通过 Git 克隆仓库（适合频繁访问）
 1. 克隆仓库到本地：
    ```bash
    git clone https://gitee.com/zhengxuqiao/iotpf-server-cpolar-update.git
@@ -122,40 +141,10 @@ systemctl start extract-tunnel.timer
    ```bash
    cat iotpf-server-cpolar-update/tunnel.json
    ```
-
-#### 方法二：使用 curl 命令（需要认证）
-1. 配置 Git 凭证缓存：
+3. 后续可以通过 `git pull` 更新本地文件：
    ```bash
-   git config --global credential.helper cache
+   cd iotpf-server-cpolar-update && git pull
    ```
-2. 使用 curl 访问（替换为你的访问令牌）：
-   ```bash
-   curl -H "Authorization: token YOUR_ACCESS_TOKEN" https://gitee.com/api/v5/repos/zhengxuqiao/iotpf-server-cpolar-update/contents/tunnel.json
-   ```
-
-#### 方法三：通过 Gitee 网页界面访问
-1. 登录 Gitee 账号
-2. 导航到仓库：https://gitee.com/zhengxuqiao/iotpf-server-cpolar-update
-3. 点击文件列表中的 tunnel.json 文件查看内容
-
-#### 方法四：无需登录直接获取文件（推荐）
-使用 Gitee 的原始文件 URL 格式，可以无需登录直接获取文件：
-
-```bash
-# 使用 raw 格式的 URL
-curl -s https://gitee.com/zhengxuqiao/iotpf-server-cpolar-update/raw/master/tunnel.json
-
-# 或者使用 API 获取原始内容
-curl -s https://gitee.com/api/v5/repos/zhengxuqiao/iotpf-server-cpolar-update/contents/tunnel.json?ref=master | jq -r '.content' | base64 -d
-```
-
-**注意事项：**
-- 使用 `raw` 格式的 URL 是最直接的方法，无需认证
-- 如果遇到访问限制，可以尝试添加 User-Agent 头：
-  ```bash
-  curl -s -H "User-Agent: Mozilla/5.0" https://gitee.com/zhengxuqiao/iotpf-server-cpolar-update/raw/master/tunnel.json
-  ```
-- 对于自动化脚本，可以考虑使用 Gitee API 并配置适当的访问令牌以避免限制
 
 ### upload-cmd.sh
 Git 上传脚本，将生成的 tunnel.json 提交并推送到远程仓库。
