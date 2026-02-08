@@ -107,6 +107,7 @@ def main():
         成功返回 0，失败返回 1
     """
     # 定义相对于脚本位置的文件路径
+    
     script_dir = Path(__file__).parent
     log_file = script_dir / 'access.log'
     output_file = script_dir / 'tunnel.json'
