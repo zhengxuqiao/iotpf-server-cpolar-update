@@ -41,8 +41,13 @@ Gitee 是 OSCHINA 推出的基于 Git 的代码托管平台（同时支持 SVN�
 
 
 
-根据参考工程，从access.log中提取出以下信息，并写出json文件
+根据参考工程，从access.log中提取出以下信息，并写出tunnel.json文件，并运行upload-cmd.sh上传。
+将此过程写成服务，每分钟执行一次。并指导安装。
+完善readme文件
+access.log 应提取出如下，记录到tunnel.json 文件：
+cpolar-web http://314f08e7.r29.cpolar.top
+ssh tcp://29.tcp.cpolar.top:10976
+thingsboard-mqtt tcp://29.tcp.cpolar.top:12019
+thingsboard-mqtt-ssl tcp://29.tcp.cpolar.top:10537
+thingsboard-web http://4d25139f.r29.cpolar.top
 
-
-
-thingsboard-mqtt 	tcp://29.tcp.cpolar.top:12019 	
