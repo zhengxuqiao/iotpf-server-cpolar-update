@@ -101,7 +101,6 @@ systemctl start extract-tunnel.timer
 生成的 JSON 文件，包含当前所有活跃的隧道信息，格式如下：
 ```json
 {
-  "cpolar-web": "http://314f08e7.r29.cpolar.top",
   "ssh": "tcp://29.tcp.cpolar.top:10976",
   "thingsboard-mqtt": "tcp://29.tcp.cpolar.top:12019",
   "thingsboard-mqtt-ssl": "tcp://29.tcp.cpolar.top:10537",
