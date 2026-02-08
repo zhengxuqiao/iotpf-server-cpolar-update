@@ -84,7 +84,6 @@ def generate_tunnel_json(tunnels, output_file):
     # 根据要求仅过滤我们需要的隧道，保留旧值
     required_tunnels = {}
     required_tunnel_names = {
-        'cpolar-web',
         'ssh',
         'thingsboard-mqtt',
         'thingsboard-mqtt-ssl',
@@ -137,9 +136,9 @@ def main():
         成功返回 0，失败返回 1
     """
     # 定义相对于脚本位置的文件路径
-    
+    log_file = Path('/var/log/cpolar/access.log')
     script_dir = Path(__file__).parent
-    log_file = script_dir / 'access.log'
+    # log_file = script_dir / 'access.log'
     output_file = script_dir / 'tunnel.json'
     upload_script = script_dir / 'upload-cmd.sh'
     
