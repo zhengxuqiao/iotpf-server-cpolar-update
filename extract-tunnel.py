@@ -83,13 +83,15 @@ def generate_tunnel_json(tunnels, output_file):
     
     # 根据要求仅过滤我们需要的隧道，保留旧值
     required_tunnels = {}
-    required_tunnel_names = {
+    # 使用列表而不是集合来保持固定的顺序
+    required_tunnel_names = [
+        'cpolar-web',
         'ssh',
         'thingsboard-mqtt',
         'thingsboard-mqtt-ssl',
         'thingsboard-web',
         'thingsboard-http-alt'
-    }
+    ]
     
     for tunnel_name in required_tunnel_names:
         # 如果新提取的信息中有该隧道，使用新值
