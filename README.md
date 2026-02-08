@@ -109,6 +109,35 @@ systemctl start extract-tunnel.timer
 }
 ```
 
+### 远程访问 tunnel.json 文件
+
+由于直接访问 Gitee 仓库文件可能会遇到 403 错误，以下是几种可靠的访问方法：
+
+#### 方法一：通过 Git 克隆仓库（推荐）
+1. 克隆仓库到本地：
+   ```bash
+   git clone https://gitee.com/zhengxuqiao/iotpf-server-cpolar-update.git
+   ```
+2. 查看 tunnel.json 文件：
+   ```bash
+   cat iotpf-server-cpolar-update/tunnel.json
+   ```
+
+#### 方法二：使用 curl 命令（需要认证）
+1. 配置 Git 凭证缓存：
+   ```bash
+   git config --global credential.helper cache
+   ```
+2. 使用 curl 访问（替换为你的访问令牌）：
+   ```bash
+   curl -H "Authorization: token YOUR_ACCESS_TOKEN" https://gitee.com/api/v5/repos/zhengxuqiao/iotpf-server-cpolar-update/contents/tunnel.json
+   ```
+
+#### 方法三：通过 Gitee 网页界面访问
+1. 登录 Gitee 账号
+2. 导航到仓库：https://gitee.com/zhengxuqiao/iotpf-server-cpolar-update
+3. 点击文件列表中的 tunnel.json 文件查看内容
+
 ### upload-cmd.sh
 Git 上传脚本，将生成的 tunnel.json 提交并推送到远程仓库。
 
