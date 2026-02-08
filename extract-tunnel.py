@@ -63,7 +63,8 @@ def generate_tunnel_json(tunnels, output_file):
         'ssh': tunnels.get('ssh', ''),
         'thingsboard-mqtt': tunnels.get('thingsboard-mqtt', ''),
         'thingsboard-mqtt-ssl': tunnels.get('thingsboard-mqtt-ssl', ''),
-        'thingsboard-web': tunnels.get('thingsboard-web', '')
+        'thingsboard-web': tunnels.get('thingsboard-web', ''),
+        'thingsboard-http-alt': tunnels.get('thingsboard-http-alt', '')
     }
     
     # 移除空条目
