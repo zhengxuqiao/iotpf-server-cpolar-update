@@ -138,6 +138,25 @@ systemctl start extract-tunnel.timer
 2. 导航到仓库：https://gitee.com/zhengxuqiao/iotpf-server-cpolar-update
 3. 点击文件列表中的 tunnel.json 文件查看内容
 
+#### 方法四：无需登录直接获取文件（推荐）
+使用 Gitee 的原始文件 URL 格式，可以无需登录直接获取文件：
+
+```bash
+# 使用 raw 格式的 URL
+curl -s https://gitee.com/zhengxuqiao/iotpf-server-cpolar-update/raw/master/tunnel.json
+
+# 或者使用 API 获取原始内容
+curl -s https://gitee.com/api/v5/repos/zhengxuqiao/iotpf-server-cpolar-update/contents/tunnel.json?ref=master | jq -r '.content' | base64 -d
+```
+
+**注意事项：**
+- 使用 `raw` 格式的 URL 是最直接的方法，无需认证
+- 如果遇到访问限制，可以尝试添加 User-Agent 头：
+  ```bash
+  curl -s -H "User-Agent: Mozilla/5.0" https://gitee.com/zhengxuqiao/iotpf-server-cpolar-update/raw/master/tunnel.json
+  ```
+- 对于自动化脚本，可以考虑使用 Gitee API 并配置适当的访问令牌以避免限制
+
 ### upload-cmd.sh
 Git 上传脚本，将生成的 tunnel.json 提交并推送到远程仓库。
 
