@@ -85,7 +85,6 @@ def generate_tunnel_json(tunnels, output_file):
     required_tunnels = {}
     # 使用列表而不是集合来保持固定的顺序
     required_tunnel_names = [
-        'cpolar-web',
         'ssh',
         'thingsboard-mqtt',
         'thingsboard-mqtt-ssl',
