@@ -3,5 +3,5 @@
   "thingsboard-mqtt": "tcp://29.tcp.cpolar.top:12637",
   "thingsboard-mqtt-ssl": "tcp://2.tcp.cpolar.cn:14649",
   "thingsboard-web": "http://79d94021.r29.cpolar.top",
-  "thingsboard-http-alt": "http://3bc9bb73.r6.cpolar.cn"
+  "thingsboard-http-alt": "http://94252d6.r6.cpolar.cn"
 }
