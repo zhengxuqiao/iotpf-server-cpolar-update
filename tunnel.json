@@ -1,5 +1,5 @@
 {
-  "ssh": "tcp://29.tcp.cpolar.top:12253",
+  "ssh": "tcp://29.tcp.cpolar.top:13344",
   "thingsboard-mqtt": "tcp://29.tcp.cpolar.top:12959",
   "thingsboard-mqtt-ssl": "tcp://17.tcp.vip.cpolar.cn:11721",
   "thingsboard-web": "http://4c6ade9f.r26.cpolar.top",
