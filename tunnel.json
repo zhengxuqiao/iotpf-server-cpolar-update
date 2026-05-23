@@ -1,7 +1,7 @@
 {
-  "ssh": "tcp://17.tcp.vip.cpolar.cn:14430",
-  "thingsboard-mqtt": "tcp://17.tcp.vip.cpolar.cn:12142",
-  "thingsboard-mqtt-ssl": "tcp://2.tcp.cpolar.cn:13318",
-  "thingsboard-web": "http://6bafb711.r21.vip.cpolar.cn",
-  "thingsboard-http-alt": "http://7e32eb54.r21.vip.cpolar.cn"
+  "ssh": "tcp://17.tcp.vip.cpolar.cn:12345",
+  "thingsboard-mqtt": "tcp://17.tcp.vip.cpolar.cn:12957",
+  "thingsboard-mqtt-ssl": "tcp://2.tcp.cpolar.cn:14885",
+  "thingsboard-web": "http://182db3c.r21.vip.cpolar.cn",
+  "thingsboard-http-alt": "http://381a42a.r21.vip.cpolar.cn"
 }
