@@ -178,6 +178,18 @@ curl -s https://gitee.com/zhengxuqiao/iotpf-server-cpolar-update/raw/master/tunn
 curl -s https://raw.githubusercontent.com/zhengxuqiao/iotpf-server-cpolar-update/master/tunnel.json
 ```
 
+#### 使用 HTTP 协议获取（通过重定向）
+
+Gitee 和 GitHub 的 raw 文件服务会强制重定向到 HTTPS，使用 `-L` 参数跟随重定向：
+
+```bash
+# Gitee HTTP 获取
+curl -sL http://gitee.com/zhengxuqiao/iotpf-server-cpolar-update/raw/master/tunnel.json
+
+# GitHub HTTP 获取
+curl -sL http://raw.githubusercontent.com/zhengxuqiao/iotpf-server-cpolar-update/master/tunnel.json
+```
+
 ## 故障排除
 
 ### 脚本执行失败
