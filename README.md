@@ -7,6 +7,7 @@
 - 自动从 cpolar access.log 中提取隧道信息
 - 生成标准化的 tunnel.json 文件
 - 自动上传到 Git 仓库
+- 支持同时同步到 Gitee 和 GitHub 双仓库
 - 支持定时任务，每分钟自动执行一次
 
 ## 提取的隧道信息
@@ -147,6 +148,25 @@ curl -s -H "User-Agent: Mozilla/5.0" https://gitee.com/zhengxuqiao/iotpf-server-
 
 ### upload-cmd.sh
 Git 上传脚本，将生成的 tunnel.json 提交并推送到远程仓库。
+支持同时同步到 Gitee 和 GitHub 两个远程仓库。
+
+### 远程访问 tunnel.json 文件
+
+以下是无需登录直接获取文件的方法，避免 403 错误：
+
+#### Gitee 仓库
+
+```bash
+# 使用 raw 格式的 URL
+curl -s https://gitee.com/zhengxuqiao/iotpf-server-cpolar-update/raw/master/tunnel.json
+```
+
+#### GitHub 仓库
+
+```bash
+# 使用 raw 格式的 URL
+curl -s https://raw.githubusercontent.com/zhengxuqiao/iotpf-server-cpolar-update/master/tunnel.json
+```
 
 ## 故障排除
 
@@ -166,7 +186,7 @@ ls -l access.log
 journalctl -u extract-tunnel.service -n 50
 ```
 
-### Git 上传失败
+#### Git 上传失败
 检查 Git 配置：
 ```bash
 git config --list
