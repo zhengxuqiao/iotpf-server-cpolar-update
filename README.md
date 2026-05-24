@@ -32,6 +32,7 @@
 - Python 3
 - Git 配置完成
 - cpolar 运行并生成 access.log
+- Gitee 和 GitHub SSH 密钥配置（用于双仓库同步）
 
 ### 安装步骤
 
@@ -44,7 +45,16 @@ chmod +x install.sh
 chmod +x upload-cmd.sh
 ```
 
-3. 运行安装脚本（需要 root 权限）：
+3. 配置远程仓库（如果尚未配置）：
+```bash
+# 查看当前远程仓库
+git remote -v
+
+# 添加 GitHub 远程仓库（替换为你的仓库地址）
+git remote add github https://github.com/your-username/your-repo.git
+```
+
+4. 运行安装脚本（需要 root 权限）：
 ```bash
 sudo ./install.sh
 ```
