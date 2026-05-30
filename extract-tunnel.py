@@ -35,7 +35,7 @@ def extract_tunnel_info(log_file):
 
     # 匹配包含隧道名称和 URL 的 NewTunnel 消息的模式
     # 日志文件在 JSON 中使用转义引号: \"TunnelName\":\"<name>\",\"Url\":\"<url>\"
-    tunnel_name_pattern = re.compile(r'\"TunnelName\":\"([^\"]+)\"[^}]*\"Url\":\"([^\"]+)\"')
+    tunnel_name_pattern = re.compile(r'\\"TunnelName\\":\\"([^"]+)\\",\\"HostHeader\\":[^}]*\\"Url\\":\\"([^"]+)\\"')
 
     # 读取整个日志文件
     with open(log_file, 'r', encoding='utf-8') as f:
