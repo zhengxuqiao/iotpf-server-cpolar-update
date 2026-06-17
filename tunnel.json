@@ -3,5 +3,5 @@
   "thingsboard-mqtt": "tcp://29.tcp.cpolar.top:13438",
   "thingsboard-mqtts-token": "tcp://29.tcp.cpolar.top:14086",
   "thingsboard-mqtts-cert": "tcp://17.tcp.vip.cpolar.cn:10974",
-  "thingsboard-web": "http://59c548c.r6.cpolar.cn"
+  "thingsboard-web": "http://7ada443e.r29.cpolar.top"
 }
