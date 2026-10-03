@@ -146,10 +146,15 @@ def main():
     output_file = script_dir / 'tunnel.json'
     upload_script = script_dir / 'upload-cmd.sh'
 
-    # 收集 master 日志文件（当天软链 + 历史轮转文件，最新优先）
-    log_files = sorted(Path('/var/log/cpolar').glob('access.log.master.log*'), reverse=True)
+    # 收集日志文件：隧道建立记录（NewTunnel/Tunnel established）在 worker 日志 access.log*，
+    # master 日志 access.log.master.log* 作为补充。worker 优先、最新优先。
+    log_dir = Path('/var/log/cpolar')
+    worker_logs = sorted(log_dir.glob('access.log'), reverse=True) + \
+                  sorted(log_dir.glob('access.log.202*'), reverse=True)
+    master_logs = sorted(log_dir.glob('access.log.master.log*'), reverse=True)
+    log_files = worker_logs + master_logs
     if not log_files:
-        print("错误: 找不到任何 master 日志文件 /var/log/cpolar/access.log.master.log*")
+        print("错误: 找不到任何 cpolar 日志文件 /var/log/cpolar/access.log*")
         return 1
 
     # 1) 先尝试本地 4040 接口（在线隧道最实时）
