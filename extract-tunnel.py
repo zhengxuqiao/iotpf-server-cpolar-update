@@ -135,7 +135,7 @@ def main():
         成功返回 0，失败返回 1
     """
     # 定义相对于脚本位置的文件路径
-    log_file = Path('/var/log/cpolar/access.log')
+    log_file = Path('/var/log/cpolar/access.log.master.log')
     script_dir = Path(__file__).parent
     output_file = script_dir / 'tunnel.json'
     upload_script = script_dir / 'upload-cmd.sh'
