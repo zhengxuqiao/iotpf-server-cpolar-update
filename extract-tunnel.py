@@ -1,64 +1,82 @@
 #!/usr/bin/env python3
 """
-extract-tunnel.py - 从 cpolar 的 access.log 中提取隧道信息并生成 tunnel.json
+extract-tunnel.py - 从 cpolar 获取隧道信息并生成 tunnel.json
 
-此脚本解析 cpolar 的 access.log 文件以提取隧道信息，
-生成包含提取数据的 tunnel.json 文件，并运行 upload-cmd.sh 脚本
-将更改上传到 Git 仓库。
+隧道信息源优先级：
+  1. 本地 4040 接口（/api/tunnels，在线隧道最实时，不依赖日志级别/轮转）
+  2. cpolar master 日志（NewTunnel/RespStartTunnel 消息，debug 级，含 TunnelName+Url）
+  3. 旧 tunnel.json 兜底
 
-作者：AI 助手生成
-日期：2026-02-08
+生成 tunnel.json 后运行 upload-cmd.sh 推送到 Git 仓库。
 """
 import re
 import json
 import subprocess
+import urllib.request
 from pathlib import Path
 
-def extract_tunnel_info(log_file):
+REQUIRED_TUNNEL_NAMES = [
+    "ssh",
+    "thingsboard-mqtt",
+    "thingsboard-mqtts-token",
+    "thingsboard-mqtts-cert",
+    "thingsboard-web"
+]
+
+
+def get_tunnels_from_api():
+    """从本地 4040 接口获取在线隧道信息（最实时）。"""
+    try:
+        with urllib.request.urlopen("http://127.0.0.1:4040/api/tunnels", timeout=3) as r:
+            data = json.loads(r.read().decode("utf-8", "replace"))
+        tunnels = {}
+        for t in data.get("tunnels", []) or []:
+            name = t.get("name") or t.get("TunnelName")
+            url = t.get("public_url") or t.get("Url")
+            if name and url:
+                tunnels[name] = url
+        return tunnels
+    except Exception as e:
+        print("本地 4040 接口获取失败: %r" % e)
+        return {}
+
+
+def extract_tunnel_info(log_files):
     """
-    从 cpolar 的 access.log 文件中提取隧道信息。
+    从 cpolar master 日志中提取隧道信息。
 
     参数:
-        log_file: access.log 文件的路径
+        log_files: 日志文件路径列表（按最新优先排序）
 
     返回:
         以隧道名称为键、URL 为值的字典
     """
     tunnels = {}
-    required_tunnel_names = [
-        "ssh",
-        "thingsboard-mqtt",
-        "thingsboard-mqtts-token",
-        "thingsboard-mqtts-cert",
-        "thingsboard-web"
-    ]
-
-    # 匹配包含隧道名称和 URL 的 NewTunnel 消息的模式
+    # 匹配包含隧道名称和 URL 的消息模式（NewTunnel/RespStartTunnel）
     # 日志文件在 JSON 中使用转义引号: \"TunnelName\":\"<name>\",\"Url\":\"<url>\"
     tunnel_name_pattern = re.compile(r'\\"TunnelName\\":\\"([^"]+)\\",\\"HostHeader\\":[^}]*\\"Url\\":\\"([^"]+)\\"')
 
-    # 读取整个日志文件
-    with open(log_file, 'r', encoding='utf-8') as f:
-        content = f.read()
+    for log_file in log_files:
+        try:
+            with open(log_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+        except (OSError, UnicodeDecodeError):
+            continue
 
-        # 查找所有隧道名称和 URL 对
         matches = list(tunnel_name_pattern.finditer(content))
 
-        # 逆序遍历匹配项，找到每个隧道的第一个匹配项（最新的）
+        # 逆序遍历匹配项，找到每个隧道的第一个匹配项（该文件中最新的）
         for match in reversed(matches):
             tunnel_name = match.group(1)
             url = match.group(2)
 
-            # 只处理我们需要的隧道类型
-            if tunnel_name in required_tunnel_names:
-                # 如果该隧道还没有被处理，就保存它
-                if tunnel_name not in tunnels:
-                    tunnels[tunnel_name] = url
-                    # 如果所有需要的隧道都已找到，就提前退出
-                    if len(tunnels) == len(required_tunnel_names):
-                        break
+            if tunnel_name in REQUIRED_TUNNEL_NAMES and tunnel_name not in tunnels:
+                tunnels[tunnel_name] = url
+                if len(tunnels) == len(REQUIRED_TUNNEL_NAMES):
+                    return tunnels
 
     return tunnels
+
 
 def generate_tunnel_json(tunnels, output_file):
     """
@@ -82,19 +100,9 @@ def generate_tunnel_json(tunnels, output_file):
 
     # 根据要求仅过滤我们需要的隧道，保留旧值
     required_tunnels = {}
-    required_tunnel_names = [
-        "ssh",
-        "thingsboard-mqtt",
-        "thingsboard-mqtts-token",
-        "thingsboard-mqtts-cert",
-        "thingsboard-web"
-    ]
-
-    for tunnel_name in required_tunnel_names:
-        # 如果新提取的信息中有该隧道，使用新值
+    for tunnel_name in REQUIRED_TUNNEL_NAMES:
         if tunnel_name in tunnels:
             required_tunnels[tunnel_name] = tunnels[tunnel_name]
-        # 否则，如果旧文件中有该隧道，使用旧值
         elif tunnel_name in old_tunnels:
             required_tunnels[tunnel_name] = old_tunnels[tunnel_name]
 
@@ -102,12 +110,12 @@ def generate_tunnel_json(tunnels, output_file):
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(required_tunnels, f, indent=2, ensure_ascii=False)
 
-    # 打印成功消息
     print(f"已生成 {output_file}，包含 {len(required_tunnels)} 个隧道:")
     for name, url in required_tunnels.items():
         print(f"  {name}: {url}")
 
     return required_tunnels
+
 
 def run_upload_script(script_path):
     """
@@ -120,12 +128,12 @@ def run_upload_script(script_path):
         subprocess.CalledProcessError: 如果上传脚本失败
     """
     try:
-        # 执行上传脚本
         subprocess.run(['bash', script_path], check=True)
         print(f"成功执行 {script_path}")
     except subprocess.CalledProcessError as e:
         print(f"执行 {script_path} 时出错: {e}")
         raise
+
 
 def main():
     """
@@ -134,23 +142,28 @@ def main():
     返回:
         成功返回 0，失败返回 1
     """
-    # 定义相对于脚本位置的文件路径
-    log_file = Path('/var/log/cpolar/access.log.master.log')
     script_dir = Path(__file__).parent
     output_file = script_dir / 'tunnel.json'
     upload_script = script_dir / 'upload-cmd.sh'
 
-    # 检查日志文件是否存在
-    if not log_file.exists():
-        print(f"错误: 找不到日志文件 {log_file}")
+    # 收集 master 日志文件（当天软链 + 历史轮转文件，最新优先）
+    log_files = sorted(Path('/var/log/cpolar').glob('access.log.master.log*'), reverse=True)
+    if not log_files:
+        print("错误: 找不到任何 master 日志文件 /var/log/cpolar/access.log.master.log*")
         return 1
 
-    # 提取隧道信息
-    print("从 access.log 中提取隧道信息...")
-    tunnels = extract_tunnel_info(log_file)
+    # 1) 先尝试本地 4040 接口（在线隧道最实时）
+    print("从本地 4040 接口获取隧道信息...")
+    tunnels = get_tunnels_from_api()
+    source = "4040 接口"
+    if not tunnels:
+        # 2) 回退到日志解析（当天 + 历史）
+        print("4040 接口无数据，从 master 日志提取隧道信息...")
+        tunnels = extract_tunnel_info(log_files)
+        source = "master 日志"
 
     if not tunnels:
-        print("警告: 在日志文件中未找到隧道信息")
+        print(f"警告: {source} 中均未找到隧道信息（隧道当前离线，将沿用旧值）")
 
     # 生成 tunnel.json
     print("\n正在生成 tunnel.json...")
@@ -162,6 +175,7 @@ def main():
 
     print("\n完成！")
     return 0
+
 
 if __name__ == '__main__':
     exit(main())
